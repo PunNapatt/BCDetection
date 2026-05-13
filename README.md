@@ -1,45 +1,86 @@
-# Bottle Cap Detection Using YOLOv8
+# BCDetection
 
-This project detects water-bottle cap status in three classes:
+Bottle cap detection project using YOLOv8 for three classes:
 
 - `closed_cap`
 - `half_cap`
 - `no_cap`
 
-The workflow includes manual image collection, Grounding DINO assisted auto-labeling, Roboflow manual checking, YOLOv8 training, hyperparameter comparison, augmentation comparison, and external image testing.
+This repository contains the dataset used for training, the scripts for auto-labeling and training, the testing scripts, and the final report PDF.
 
-## Important Source Files
+## Repository Structure
 
-| File | Purpose |
-| --- | --- |
-| `DataPreparation/auto_label.py` | Auto-label images with Grounding DINO prompts and export YOLO-format labels. |
-| `Trainandrun/train_yolo.py` | Baseline YOLOv8 training script. |
-| `Trainandrun/hyperparam_compare.py` | Batch size, epoch, and learning-rate comparison script. |
-| `Trainandrun/augmentation_compare.py` | YOLO augmentation policy comparison script. |
-| `Trainandrun/test_augmentation_weights.py` | Tests each augmentation weight on the same external test images. |
-| `Trainandrun/predict.py` | Inference script for images, folders, or webcam. |
-| `PROJECT_STRUCTURE.md` | Project folder map. |
-| `DATASET.md` | Dataset description and dataset submission notes. |
+```text
+BCDetection/
+  data/
+    auto_label.py
+    data_labeled_roboflow/
+      data.yaml
+      train/
+      valid/
+    for_test/
+  train/
+    hyperparam_compare.py
+    augmentation_compare.py
+  test/
+    predict.py
+    test_augmentation_weights.py
+  Bottle_Cap_Detection_Final_Report.pdf
+  README.md
+```
 
 ## Dataset
 
-The main YOLOv8 dataset is stored in:
+The final YOLOv8 dataset is stored in:
 
 ```text
-Trainandrun/Data label from roboflow/
+data/data_labeled_roboflow/
 ```
 
-The original class-folder dataset used before Roboflow export is stored in:
+This dataset contains three bottle-cap classes:
+
+- `closed_cap`: bottle cap is fully closed
+- `half_cap`: bottle cap is partially open or loose
+- `no_cap`: bottle has no cap
+
+Dataset split:
+
+| Split | Description |
+| --- | --- |
+| `train/` | Training images and YOLO labels |
+| `valid/` | Validation images and YOLO labels |
+
+External test images used for manual evaluation are stored in:
 
 ```text
-DataPreparation/DATA bottle_cap/
+data/for_test/
 ```
 
-See `DATASET.md` for details.
+## Source Files
 
-## Final Selected Model
+| File | Purpose |
+| --- | --- |
+| `data/auto_label.py` | Uses Grounding DINO to create initial YOLO-format labels automatically. |
+| `train/hyperparam_compare.py` | Compares batch size, epoch, and learning rate settings. |
+| `train/augmentation_compare.py` | Compares YOLO augmentation policies. |
+| `test/predict.py` | Runs inference on images, folders, or webcam using the selected final model. |
+| `test/test_augmentation_weights.py` | Tests all augmentation weights on the same external image set. |
 
-The selected model configuration is:
+## Method Summary
+
+1. Images were collected manually by taking bottle photos in three cap states.
+2. Initial bounding boxes were generated with Grounding DINO using class-specific prompts.
+3. The labels were checked and corrected manually in Roboflow.
+4. YOLOv8n was trained and compared across multiple hyperparameters:
+   - batch size
+   - epoch count
+   - learning rate
+5. The selected training setup was then used to compare YOLO augmentation strategies.
+6. The final model was tested on external images and compared with a closed-up-only dataset experiment.
+
+## Final Selected Training Setup
+
+The final selected full-project model used:
 
 ```text
 Model: YOLOv8n
@@ -50,34 +91,36 @@ Optimizer: SGD
 Augmentation: No Mosaic
 ```
 
-Final selected weight:
+## Running the Scripts
+
+Auto-labeling:
+
+```powershell
+python data/auto_label.py
+```
+
+Hyperparameter comparison:
+
+```powershell
+python train/hyperparam_compare.py
+```
+
+Augmentation comparison:
+
+```powershell
+python train/augmentation_compare.py
+```
+
+Prediction on test images:
+
+```powershell
+python test/predict.py --source data/for_test
+```
+
+## Report
+
+The final report submitted for the project is included as:
 
 ```text
-Trainandrun/yolo_augmentation_output/aug_compare_20260512_181523/no_mosaic/weights/best.pt
+Bottle_Cap_Detection_Final_Report.pdf
 ```
-
-## How to Run Prediction
-
-```powershell
-& "C:\Users\User\AppData\Local\Programs\Python\Python310\python.exe" "Trainandrun\predict.py" --source "DataPreparation\For_Test" --conf 0.4
-```
-
-For webcam:
-
-```powershell
-& "C:\Users\User\AppData\Local\Programs\Python\Python310\python.exe" "Trainandrun\predict.py" --source webcam --conf 0.4
-```
-
-## Git Submission Notes
-
-This project contains many images and `.pt` model files, so Git LFS is recommended.
-
-```powershell
-git lfs install
-git init
-git add .gitattributes .gitignore README.md DATASET.md PROJECT_STRUCTURE.md
-git add DataPreparation Trainandrun
-git commit -m "Add bottle cap detection project source and dataset"
-```
-
-If the dataset is too large for your Git hosting limit, upload the dataset to Google Drive/Roboflow and put the link in `DATASET.md`.
