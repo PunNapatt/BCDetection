@@ -1,0 +1,11 @@
+# YOLOv8 dataset config
+path: C:\Users\User\Desktop\digital image\Project Bottle Cap Detection\Bottle Cap Detection All\Trainandrun\Data label from roboflow
+
+train: train/images
+val: valid/images
+
+nc: 3
+names:
+  0: closed_cap
+  1: half_cap
+  2: no_cap
